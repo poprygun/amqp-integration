@@ -6,7 +6,6 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.integration.config.EnableIntegration;
 
 @SpringBootApplication
-
 @ImportResource("classpath*:/spring/integration/tcp-amqp.xml")
 public class AmqpIntegrationApplication {
 
