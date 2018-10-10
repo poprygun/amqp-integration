@@ -16,12 +16,12 @@
     <int-ip:tcp-inbound-channel-adapter channel="toRabbit" connection-factory="tcpConnectionFactory" />
     <int:channel id="toRabbit" />
     <int-amqp:outbound-channel-adapter channel="toRabbit"
-                                       amqp-template="amqpTemplate" exchange-name="si.fa.exchange"
+                                       amqp-template="amqpTemplate" exchange-name="${exchange.name}"
                                        routing-key="si.test.binding"/>
 
     <!-- From RabbitMQ To RabbitMQ -->
     <int-amqp:inbound-channel-adapter channel="fromRabbit"
-                                      queue-names="si.test.queue"
+                                      queue-names="${queue.name}"
                                       connection-factory="connectionFactory" />
 
     <int:channel id="fromRabbit">
@@ -42,11 +42,11 @@
     <rabbit:connection-factory id="connectionFactory" host="localhost" />
     <rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
     <rabbit:admin connection-factory="connectionFactory" />
-    <rabbit:queue name="si.test.queue" />
+    <rabbit:queue name="${queue.name}" />
 
-    <rabbit:fanout-exchange name="si.fa.exchange" durable="false">
+    <rabbit:fanout-exchange name="${exchange.name}" durable="false">
         <rabbit:bindings>
-            <rabbit:binding queue="si.test.queue" />
+            <rabbit:binding queue="${queue.name}" />
         </rabbit:bindings>
     </rabbit:fanout-exchange>
 
