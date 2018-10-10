@@ -12,11 +12,11 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- From TCP To RabbitMQ -->
-    <int-ip:tcp-connection-factory id="server" type="server" port="11111" />
-    <int-ip:tcp-inbound-channel-adapter channel="toRabbit" connection-factory="server" />
+    <int-ip:tcp-connection-factory id="tcpConnectionFactory" type="server" port="11111" />
+    <int-ip:tcp-inbound-channel-adapter channel="toRabbit" connection-factory="tcpConnectionFactory" />
     <int:channel id="toRabbit" />
     <int-amqp:outbound-channel-adapter channel="toRabbit"
-                                       amqp-template="amqpTemplate" exchange-name="si.test.exchange"
+                                       amqp-template="amqpTemplate" exchange-name="si.fa.exchange"
                                        routing-key="si.test.binding"/>
 
     <!-- From RabbitMQ To RabbitMQ -->
@@ -24,9 +24,19 @@
                                       queue-names="si.test.queue"
                                       connection-factory="connectionFactory" />
 
-    <int:channel id="fromRabbit" />
+    <int:channel id="fromRabbit">
+        <int:interceptors>
+            <int:wire-tap channel="loggingChannel"/>
+        </int:interceptors>
+    </int:channel>
+
     <int-ip:tcp-connection-factory id="client" type="client" host="localhost" port="11112"/>
-    <int-ip:tcp-outbound-channel-adapter channel="fromRabbit" connection-factory="client"/>
+    <int-ip:tcp-outbound-channel-adapter id="outboundChannelAdapter" channel="fromRabbit" connection-factory="client"/>
+
+
+    <int:logging-channel-adapter
+            id="loggingChannel"
+    />
 
     <!-- Infrastructure -->
     <rabbit:connection-factory id="connectionFactory" host="localhost" />
@@ -34,10 +44,10 @@
     <rabbit:admin connection-factory="connectionFactory" />
     <rabbit:queue name="si.test.queue" />
 
-    <rabbit:direct-exchange name="si.test.exchange">
+    <rabbit:fanout-exchange name="si.fa.exchange" durable="false">
         <rabbit:bindings>
-            <rabbit:binding queue="si.test.queue" key="si.test.binding" />
+            <rabbit:binding queue="si.test.queue" />
         </rabbit:bindings>
-    </rabbit:direct-exchange>
+    </rabbit:fanout-exchange>
 
 </beans>
